@@ -185,11 +185,44 @@ class AppState extends ChangeNotifier {
   }
 }
 // ───────────── UI ─────────────
-void main() async {
+void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  final st = AppState();
-  await st.load();
-  runApp(AyniApp(st));
+  ErrorWidget.builder = (d) => Material(
+      color: Colors.white,
+      child: SingleChildScrollView(
+          child: Text('ERROR: ${d.exception}',
+              style: const TextStyle(color: Colors.red, fontSize: 16))));
+  runApp(const Boot());
+}
+
+class Boot extends StatelessWidget {
+  const Boot({super.key});
+  @override
+  Widget build(BuildContext context) => MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: FutureBuilder<AppState>(
+          future: () async {
+            final s = AppState();
+            await s.load();
+            return s;
+          }(),
+          builder: (c, snap) {
+            if (snap.hasError) {
+              return Scaffold(
+                  body: SafeArea(
+                      child: SingleChildScrollView(
+                          padding: const EdgeInsets.all(16),
+                          child: Text('ERROR: ${snap.error}',
+                              style: const TextStyle(color: Colors.red)))));
+            }
+            if (!snap.hasData) {
+              return const Scaffold(
+                  body: Center(child: CircularProgressIndicator()));
+            }
+            return AyniApp(snap.data!);
+          },
+        ),
+      );
 }
 
 const kNavy = Color(0xFF2B3A4A);
