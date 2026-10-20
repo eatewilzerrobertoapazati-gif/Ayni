@@ -30,7 +30,7 @@ jobs:
           cp -r _gen/android ./android
           rm -rf _gen
           sed -i 's/android:label="[^"]*"/android:label="AyniApp"/' android/app/src/main/AndroidManifest.xml
-
+                    sed -i 's#</application>#    <meta-data android:name="io.flutter.embedding.android.EnableImpeller" android:value="false" />\n</application>#' android/app/src/main/AndroidManifest.xml
       - run: flutter pub get
 
       - name: Compilar APK
